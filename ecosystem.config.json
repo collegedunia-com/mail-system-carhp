@@ -1,0 +1,19 @@
+{
+  "apps": [
+    {
+      "name": "mail-system",
+      "cwd": ".",
+      "script": "./dist/src/main.js",
+      "instances": 1,
+      "exec_mode": "fork",
+      "autorestart": true,
+      "watch": false,
+      "restart_delay": 5000,
+      "kill_timeout": 90000,
+      "time": true,
+      "env": {
+        "NODE_ENV": "production"
+      }
+    }
+  ]
+}

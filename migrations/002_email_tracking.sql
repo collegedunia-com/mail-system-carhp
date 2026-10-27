@@ -1,0 +1,12 @@
+CREATE TABLE IF NOT EXISTS email_tracking (
+  message_id CHAR(36) BINARY PRIMARY KEY,
+  token CHAR(64) NOT NULL,
+  pixel_url VARCHAR(2048) NOT NULL,
+  first_opened_at DATETIME(3) NULL,
+  last_opened_at DATETIME(3) NULL,
+  open_count INT UNSIGNED NOT NULL DEFAULT 0,
+  created_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+  updated_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
+  UNIQUE KEY email_tracking_token(token),
+  CONSTRAINT tracking_message FOREIGN KEY(message_id) REFERENCES email_messages(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;

@@ -1,0 +1,51 @@
+{
+  "name": "sheet-gmail-mailer",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "start": "node dist/src/main.js",
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc --noEmit",
+    "cli": "node --import tsx src/cli.ts",
+    "db:migrate": "node --import tsx src/cli.ts migrate",
+    "gmail:connect": "node --import tsx src/cli.ts connect",
+    "sheets:init": "node --import tsx src/cli.ts init-sheet",
+    "sync": "node --import tsx src/cli.ts sync",
+    "worker": "node --import tsx src/cli.ts worker",
+    "cron": "node --import tsx src/cli.ts cron",
+    "tracker": "node --import tsx src/cli.ts tracker"
+  },
+  "dependencies": {
+    "@nestjs/common": "^10.3.7",
+    "@nestjs/core": "^10.0.0",
+    "@nestjs/sequelize": "^10.0.1",
+    "dotenv": "^16.6.1",
+    "google-auth-library": "^10.0.0",
+    "handlebars": "^4.7.8",
+    "luxon": "^3.6.1",
+    "mysql2": "^3.14.0",
+    "nodemailer": "^10.2.0",
+    "reflect-metadata": "^0.2.0",
+    "rxjs": "^7.8.1",
+    "sequelize": "^6.37.0",
+    "sequelize-typescript": "^2.1.6",
+    "winston": "^3.19.0",
+    "winston-daily-rotate-file": "^5.0.0"
+  },
+  "devDependencies": {
+    "@types/luxon": "^3.6.0",
+    "@types/node": "^22.15.0",
+    "@types/nodemailer": "^7.0.0",
+    "tsx": "^4.20.0",
+    "typescript": "^5.8.0"
+  },
+  "overrides": {
+    "sequelize": {
+      "uuid": "^11.1.1"
+    }
+  }
+}
