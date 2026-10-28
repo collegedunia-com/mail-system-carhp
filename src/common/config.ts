@@ -63,7 +63,7 @@ export function config(env: NodeJS.ProcessEnv = process.env) {
     googleClientId: env.GOOGLE_CLIENT_ID || "",
     googleClientSecret: env.GOOGLE_CLIENT_SECRET || "",
     redirectUri:
-      env.GOOGLE_REDIRECT_URI || "http://127.0.0.1:3000/oauth/callback",
+      env.GOOGLE_REDIRECT_URI || "http://127.0.0.1:3003/oauth/callback",
     spreadsheetId: env.SPREADSHEET_ID || "",
     sheetName: env.SHEET_NAME || "Outreach",
     templateSheetName: env.TEMPLATE_SHEET_NAME || "Template Library",

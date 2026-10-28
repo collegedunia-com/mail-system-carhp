@@ -31,6 +31,12 @@ export const INPUT_HEADERS = [
   "publisher",
   "sender_name",
 ];
+export const TEMPLATE_DATA_HEADERS = [
+  "publisher_description",
+  "audience_stat",
+  "agency_name",
+  "vertical_list",
+];
 export const OUTPUT_HEADERS = [
   "status",
   "sent_at",
@@ -81,6 +87,7 @@ export function parseRow(row: Record<string, string>, cfg: Config) {
     if (!RESERVED.has(key)) mergeData[key] = value;
   mergeData.sender_email = from;
   mergeData.recipient_email = to;
+  mergeData.has_attachments = attachments.length > 0;
   const templateKey = row.template_key?.trim();
   if (!templateKey)
     throw new Error("Set a template_key from the Template Library tab");
@@ -136,7 +143,7 @@ export class GoogleSheet implements SheetPort {
         `${this.tab}!A1`,
       )}?valueInputOption=RAW`,
       "PUT",
-      { values: [[...INPUT_HEADERS, ...OUTPUT_HEADERS]] },
+      { values: [[...INPUT_HEADERS, ...OUTPUT_HEADERS, ...TEMPLATE_DATA_HEADERS]] },
     );
   }
   async read(): Promise<SheetGrid> {

@@ -23,7 +23,7 @@ export async function connectGmail(
     !callback.port
   ) {
     throw new Error(
-      "Use a loopback redirect URI such as http://127.0.0.1:3000/oauth/callback",
+      "Use a loopback redirect URI such as http://127.0.0.1:3003/oauth/callback",
     );
   }
   const auth = new OAuth2Client(
