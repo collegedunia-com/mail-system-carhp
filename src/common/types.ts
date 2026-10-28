@@ -60,6 +60,9 @@ export interface GmailMessage {
   payload?: GmailPart;
 }
 export interface GmailPort {
+  sendAs(): Promise<
+    Array<{ sendAsEmail: string; verificationStatus?: string }>
+  >;
   profile(): Promise<{ emailAddress: string; historyId: string }>;
   send(
     raw: Buffer,

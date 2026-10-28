@@ -40,7 +40,6 @@ interface TemplateDefinition {
 }
 
 const STEP_ORDER = ["INITIAL", "FU1", "FU2", "FU3"];
-const OPT_OUT = "If you'd prefer not to hear from us, reply and let us know.";
 
 export function emailAddress(value: string): string {
   const normalised = value.trim().toLowerCase();
@@ -220,7 +219,7 @@ function renderTemplateSequence(
     return {
       subject:
         step === 0 || /^(Re:\s*)/i.test(subject) ? subject : "Re: " + subject,
-      text: renderText(source, data) + "\n\n" + OPT_OUT,
+      text: renderText(source, data),
     };
   });
 }

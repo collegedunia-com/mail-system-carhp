@@ -14,6 +14,7 @@ import type { Outreach as OutreachRow } from "../common/types.js";
 import type { Outreach } from "../outreach/model/outreach.model.js";
 import type { EmailMessage } from "../outreach/model/email-message.model.js";
 import type { GmailAccount } from "../gmail/model/gmail-account.model.js";
+import type { GmailFactory } from "../gmail/gmail.module.js";
 import type { SuppressedRecipient } from "../replies/model/suppressed-recipient.model.js";
 import { TrackingService } from "../tracking/tracking.service.js";
 import { unquoted } from "../replies/replies.service.js";
@@ -229,6 +230,7 @@ export class SheetSync {
     private cfg: Config,
     private sheet: SheetPort,
     private templates: TemplatesService,
+    private gmailFactory: GmailFactory,
     private models: SheetModels,
     private tracking: TrackingService,
     private logger: LoggerService,
@@ -238,6 +240,10 @@ export class SheetSync {
     const { Outreach, EmailMessage, GmailAccount, SuppressedRecipient } =
       this.models;
     const grid = await this.sheet.read();
+    const connectedAccounts = await GmailAccount.findAll({
+      where: { status: "connected" },
+    });
+    let aliasOwners: Map<string, GmailAccount[]> | null = null;
     const ids = new Map<string, number>();
     for (const row of grid.rows)
       if (row.id?.trim())
@@ -310,12 +316,35 @@ export class SheetSync {
         continue;
       try {
         const parsed = parseRow(row, this.cfg);
-        const account = await GmailAccount.findOne({
-          where: { email: parsed.from, status: "connected" },
-        });
+        let account = connectedAccounts.find(
+          (candidate) => candidate.get().email === parsed.from,
+        );
+        if (!account) {
+          if (!aliasOwners) {
+            aliasOwners = new Map();
+            for (const candidate of connectedAccounts) {
+              const aliases = await this.gmailFactory(
+                candidate.get({ plain: true }),
+              ).sendAs();
+              for (const alias of aliases) {
+                if (alias.verificationStatus !== "accepted") continue;
+                const address = alias.sendAsEmail.toLowerCase();
+                const owners = aliasOwners.get(address) || [];
+                owners.push(candidate);
+                aliasOwners.set(address, owners);
+              }
+            }
+          }
+          const owners = aliasOwners.get(parsed.from) || [];
+          if (owners.length > 1)
+            throw new Error(
+              "The from alias belongs to multiple connected accounts",
+            );
+          account = owners[0];
+        }
         if (!account)
           throw new Error(
-            "The from account is not connected; run gmail:connect",
+            "The from address is not a connected Gmail account or verified send-as alias",
           );
         if (await SuppressedRecipient.findByPk(parsed.to))
           throw new Error("Recipient is suppressed");

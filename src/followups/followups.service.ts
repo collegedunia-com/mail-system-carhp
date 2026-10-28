@@ -11,6 +11,7 @@ import type { AttachmentLoader } from "../attachments/attachments.module.js";
 import { safeError } from "../common/errors.js";
 import { ReplyMonitor, bodyText, header } from "../replies/replies.service.js";
 import { composeMail } from "../gmail/mime.service.js";
+import { emailAddress } from "../templates/templates.service.js";
 import { insideWindow, nextFollowup } from "./schedule.service.js";
 import { TrackingService } from "../tracking/tracking.service.js";
 import type { GmailAccount } from "../gmail/model/gmail-account.model.js";
@@ -386,6 +387,27 @@ export class FollowupService {
       return false;
     }
     if (!(await this.rateAllowed(account.id, now))) return false;
+    const fromEmail = emailAddress(
+      typeof outreach.merge_data.sender_email === "string"
+        ? outreach.merge_data.sender_email
+        : account.email,
+    );
+    if (fromEmail !== account.email) {
+      const aliases = await gmail.sendAs();
+      if (
+        !aliases.some(
+          (alias) =>
+            alias.sendAsEmail.toLowerCase() === fromEmail &&
+            alias.verificationStatus === "accepted",
+        )
+      ) {
+        await this.review(
+          outreach.id,
+          "Sender alias is no longer verified for this Gmail account",
+        );
+        return false;
+      }
+    }
     const step = outreach.initial_sent_at ? outreach.followup_count + 1 : 0;
     let message = (
       await EmailMessage.findOne({
@@ -469,7 +491,7 @@ export class FollowupService {
       const attachments =
         step === 0 ? await this.attachments.load(outreach.attachment_refs) : [];
       const raw = await composeMail({
-        from: account.email,
+        from: fromEmail,
         to: outreach.to_email,
         subject: message.subject,
         text: message.body_text,

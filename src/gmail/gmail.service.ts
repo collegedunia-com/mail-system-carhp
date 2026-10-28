@@ -68,6 +68,15 @@ export class GmailClient implements GmailPort {
     return (await response.json()) as T;
   }
 
+  async sendAs(): Promise<
+    Array<{ sendAsEmail: string; verificationStatus?: string }>
+  > {
+    const result = await this.get<{
+      sendAs?: Array<{ sendAsEmail: string; verificationStatus?: string }>;
+    }>("settings/sendAs");
+    return result.sendAs || [];
+  }
+
   profile() {
     return this.get<{ emailAddress: string; historyId: string }>("profile");
   }

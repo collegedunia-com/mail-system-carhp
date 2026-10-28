@@ -5,6 +5,7 @@ import type { Config } from "../common/config.js";
 import {
   APP_CONFIG,
   APP_OVERRIDES,
+  GMAIL_MODULE,
   SHEETS_MODULE,
 } from "../common/app.tokens.js";
 import type { AppOverrides } from "../common/app-overrides.js";
@@ -25,6 +26,7 @@ import { TrackingService } from "../tracking/tracking.service.js";
 import { Outreach } from "../outreach/model/outreach.model.js";
 import { EmailMessage } from "../outreach/model/email-message.model.js";
 import { GmailAccount } from "../gmail/model/gmail-account.model.js";
+import { GmailModule, type GmailModuleFacade } from "../gmail/gmail.module.js";
 import { SuppressedRecipient } from "../replies/model/suppressed-recipient.model.js";
 
 export function createSheetsFacade(
@@ -32,6 +34,7 @@ export function createSheetsFacade(
   db: DatabaseService,
   google: GoogleService,
   templates: TemplatesService,
+  gmail: GmailModuleFacade,
   override: SheetPort | undefined,
   models: SheetModels,
   tracking: TrackingService,
@@ -46,6 +49,7 @@ export function createSheetsFacade(
       cfg,
       getSheet(),
       templates,
+      gmail.createClient,
       models,
       tracking,
       logger,
@@ -71,6 +75,7 @@ export type SheetsModuleFacade = ReturnType<typeof createSheetsFacade>;
   imports: [
     DatabaseModule,
     GoogleModule,
+    GmailModule,
     TemplatesModule,
     TrackingModule,
     SequelizeModule.forFeature([
@@ -88,6 +93,7 @@ export type SheetsModuleFacade = ReturnType<typeof createSheetsFacade>;
         DatabaseService,
         GoogleService,
         TemplatesService,
+        GMAIL_MODULE,
         APP_OVERRIDES,
         getModelToken(Outreach),
         getModelToken(EmailMessage),
@@ -101,6 +107,7 @@ export type SheetsModuleFacade = ReturnType<typeof createSheetsFacade>;
         db: DatabaseService,
         google: GoogleService,
         templates: TemplatesService,
+        gmail: GmailModuleFacade,
         overrides: AppOverrides,
         outreach: typeof Outreach,
         emailMessage: typeof EmailMessage,
@@ -114,6 +121,7 @@ export type SheetsModuleFacade = ReturnType<typeof createSheetsFacade>;
           db,
           google,
           templates,
+          gmail,
           overrides.sheet,
           {
             Outreach: outreach,
